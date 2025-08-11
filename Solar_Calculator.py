@@ -85,6 +85,16 @@ with col2:
 
 # --- Calculation Trigger ---
 if st.button("Calculate Financials", type="primary"):
+    # Store the primary inputs in session state for later use in scenario analysis
+    st.session_state['primary_inputs'] = {
+        'capex_mil': capex_mil,
+        'annual_kwh_mil': annual_kwh_mil,
+        'maintenance_cost_k': maintenance_cost_k,
+        'contingency_percentage': contingency_percentage,
+        'price_per_kwh': price_per_kwh,
+        'plant_lifetime': plant_lifetime
+    }
+    
     # Convert inputs from millions/thousands to base units
     capex = capex_mil * 1_000_000
     annual_kwh = annual_kwh_mil * 1_000_000
@@ -96,20 +106,6 @@ if st.button("Calculate Financials", type="primary"):
     )
     st.session_state['results'] = results
 
-    # --- Scenario Analysis for Graphs ---
-    price_scenarios = np.linspace(0.10, 0.30, 21)
-    scenario_data = []
-    for price in price_scenarios:
-        # Pass all required args to the calculation function for each scenario
-        scenario_results = calculate_solar_financials(
-            capex, contingency_percentage, annual_kwh, price, maintenance_cost, plant_lifetime
-        )
-        scenario_data.append({
-            "Price per kWh (FJD)": price, 
-            "IRR": scenario_results['irr'], 
-            "Payback Period (Years)": scenario_results['simple_payback']
-        })
-    st.session_state['scenario_df'] = pd.DataFrame(scenario_data)
 
 # --- Display Results (if they exist in session state) ---
 if 'results' in st.session_state:
@@ -139,17 +135,54 @@ if 'results' in st.session_state:
     else:
         st.error("The project is not profitable with the given inputs (Annual Revenue is less than or equal to Maintenance Costs).")
 
-    # --- Display Graphs ---
-    if 'scenario_df' in st.session_state:
-        st.markdown("---")
-        st.header("📈 Scenario Analysis vs. Price per kWh")
-        scenario_df = st.session_state['scenario_df']
+    # --- Interactive Scenario Analysis Section ---
+    st.markdown("---")
+    st.header("📈 Interactive Scenario Analysis")
+    st.write("Adjust the CAPEX below to see how it affects the project's sensitivity to electricity price.")
 
-        st.subheader("IRR vs. Price per kWh")
-        st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['IRR']])
+    # Get primary inputs from session state to use in this interactive section
+    inputs = st.session_state['primary_inputs']
+    
+    # Add the interactive slider for CAPEX
+    scenario_capex_mil = st.slider(
+        "Adjust CAPEX for Scenario Analysis (Million FJD)",
+        min_value=1.0,
+        max_value=3.0,
+        value=inputs['capex_mil'], # Default to the primary input value
+        step=0.1
+    )
 
-        st.subheader("Payback Period vs. Price per kWh")
-        st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['Payback Period (Years)']])
+    # Re-calculate scenario data based on the slider's value
+    scenario_capex = scenario_capex_mil * 1_000_000
+    annual_kwh = inputs['annual_kwh_mil'] * 1_000_000
+    maintenance_cost = inputs['maintenance_cost_k'] * 1_000
+    
+    price_scenarios = np.linspace(0.10, 0.40, 31) # Range from 0.10 to 0.40 FJD
+    scenario_data = []
+    for price in price_scenarios:
+        scenario_results = calculate_solar_financials(
+            scenario_capex, 
+            inputs['contingency_percentage'], 
+            annual_kwh, 
+            price, 
+            maintenance_cost, 
+            inputs['plant_lifetime']
+        )
+        scenario_data.append({
+            "Price per kWh (FJD)": price, 
+            "IRR": scenario_results['irr'], 
+            "Payback Period (Years)": scenario_results['simple_payback']
+        })
+    
+    scenario_df = pd.DataFrame(scenario_data)
+
+    # Display the updated graphs
+    st.subheader("IRR vs. Price per kWh")
+    st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['IRR']])
+
+    st.subheader("Payback Period vs. Price per kWh")
+    st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['Payback Period (Years)']])
+
 
 # --- Explanations Expander ---
 with st.expander("What do these metrics mean?"):
