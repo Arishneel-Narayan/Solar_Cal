@@ -51,15 +51,15 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
 # --- Streamlit App Layout ---
 st.set_page_config(layout="wide", page_title="Solar Calculations")
 
-st.title("☀️ Solar Calculations")
 
 # --- Center the logo ---
 # Create three columns; the middle one will contain the logo.
 # The side columns act as spacers.
 _, logo_col, _ = st.columns([2, 1, 2])
 with logo_col:
-    st.image("logo.png") # Uncomment to display your logo
-    pass
+    st.image("logo.png") # Displays your logo
+
+st.title("Solar Calculations")
 
 
 st.info(
@@ -191,4 +191,3 @@ with st.expander("What do these metrics mean?"):
     - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
     - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     """)
-
