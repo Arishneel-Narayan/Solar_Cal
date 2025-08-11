@@ -35,13 +35,10 @@ def calculate_solar_financials(capex, contingency_amount, annual_revenue, mainte
 # --- Streamlit App Layout ---
 st.set_page_config(layout="centered", page_title="Solar Financial Calculator")
 
-st.title("☀️ Advanced Solar Financial Calculator")
-# st.image("logo.png", width=200) # Uncomment to display your logo
+st.title("☀️ Scenario Solar Financial Calculator")
+st.image("logo.png", width=500) # Uncomment to display your logo
 
-st.info(
-    "**Note:** These calculations are benchmarked for a **1 Hectare, 1 MW** scale project. "
-    "Adjust inputs to reflect your project's specifics."
-)
+
 
 st.markdown("---")
 st.header("⚙️ Input Parameters")
@@ -50,17 +47,22 @@ st.header("⚙️ Input Parameters")
 col1, col2 = st.columns(2)
 
 with col1:
-    capex = st.number_input("Capital Expenditure (CAPEX) ($)", min_value=0.0, value=1_000_000.0, step=50_000.0)
-    annual_kwh = st.number_input("Total kWh Generated Annually (kWh)", min_value=0, value=1_500_000, step=100_000)
-    maintenance_cost = st.number_input("Annual Maintenance Costs ($)", min_value=0.0, value=20_000.0, step=1_000.0)
+    capex_mil = st.number_input("Capital Expenditure (CAPEX) (Million FJD)", min_value=0.0, value=1.0, step=0.1)
+    annual_kwh_mil = st.number_input("Total Energy Generated Annually (Million kWh)", min_value=0.0, value=1.5, step=0.1)
+    maintenance_cost_k = st.number_input("Annual Maintenance Costs (k FJD)", min_value=0.0, value=30.0, step=1.0)
 
 with col2:
     contingency_percentage = st.slider("Contingency Budget (%)", min_value=0, max_value=25, value=10)
-    price_per_kwh = st.number_input("Price per kWh ($)", min_value=0.00, value=0.17, step=0.01, format="%.2f")
+    price_per_kwh = st.number_input("Price per kWh (FJD)", min_value=0.00, value=0.17, step=0.01, format="%.2f")
     plant_lifetime = st.slider("Plant Lifetime (Years)", min_value=5, max_value=40, value=25)
 
 # --- Calculation Trigger ---
 if st.button("Calculate Financials", type="primary"):
+    # Convert inputs from millions/thousands to base units
+    capex = capex_mil * 1_000_000
+    annual_kwh = annual_kwh_mil * 1_000_000
+    maintenance_cost = maintenance_cost_k * 1_000
+    
     # Calculate main scenario
     contingency_amount = capex * (contingency_percentage / 100.0)
     annual_revenue = annual_kwh * price_per_kwh
@@ -74,11 +76,13 @@ if st.button("Calculate Financials", type="primary"):
         "simple_payback": simple_payback,
         "roi": roi,
         "irr": irr,
-        "contingency_amount": contingency_amount
+        "contingency_amount": contingency_amount,
+        "annual_revenue": annual_revenue,
+        "maintenance_cost": maintenance_cost
     }
 
     # --- Scenario Analysis for Graphs ---
-    price_scenarios = np.linspace(0.10, 0.25, 16) # Create 16 price points from $0.10 to $0.25
+    price_scenarios = np.linspace(0.10, 0.30, 21) # Create 21 price points from $0.10 to $0.30
     scenario_data = []
 
     for price in price_scenarios:
@@ -86,7 +90,7 @@ if st.button("Calculate Financials", type="primary"):
         _, payback, _, scenario_irr = calculate_solar_financials(
             capex, contingency_amount, scenario_revenue, maintenance_cost, plant_lifetime
         )
-        scenario_data.append({"Price per kWh": price, "IRR": scenario_irr, "Payback Period (Years)": payback})
+        scenario_data.append({"Price per kWh (FJD)": price, "IRR": scenario_irr, "Payback Period (Years)": payback})
     
     st.session_state['scenario_df'] = pd.DataFrame(scenario_data)
 
@@ -94,7 +98,7 @@ if st.button("Calculate Financials", type="primary"):
 if 'results' in st.session_state:
     results = st.session_state['results']
     st.markdown("---")
-    st.header("📊 Financial Metrics")
+    st.header("📊 Key Financial Metrics")
 
     if results['roi'] != -1.0:
         res_col1, res_col2, res_col3 = st.columns(3)
@@ -103,10 +107,18 @@ if 'results' in st.session_state:
         res_col3.metric("Internal Rate of Return (IRR)", f"{results['irr']:.2%}")
 
         st.success(
-            f"With an initial investment of **${results['initial_investment']:,.2f}** (including a "
-            f"${results['contingency_amount']:,.2f} contingency), the project is projected "
+            f"With an initial investment of **{results['initial_investment']:,.2f} FJD** (including a "
+            f"{results['contingency_amount']:,.2f} FJD contingency), the project is projected "
             f"to pay for itself in approximately **{results['simple_payback']:.2f} years**."
         )
+        
+        st.markdown("---")
+        st.header("💰 Annual Financials Breakdown")
+        ann_col1, ann_col2, ann_col3 = st.columns(3)
+        ann_col1.metric("Annual Revenue", f"{results['annual_revenue']:,.2f} FJD")
+        ann_col2.metric("Annual Maintenance", f"{results['maintenance_cost']:,.2f} FJD")
+        ann_col3.metric("Annual Profit", f"{(results['annual_revenue'] - results['maintenance_cost']):,.2f} FJD")
+
     else:
         st.error("The project is not profitable with the given inputs (Annual Revenue is less than or equal to Maintenance Costs).")
 
@@ -117,15 +129,7 @@ if 'results' in st.session_state:
         scenario_df = st.session_state['scenario_df']
 
         st.subheader("IRR vs. Price per kWh")
-        st.line_chart(scenario_df.set_index("Price per kWh")[['IRR']])
+        st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['IRR']])
 
         st.subheader("Payback Period vs. Price per kWh")
-        st.line_chart(scenario_df.set_index("Price per kWh")[['Payback Period (Years)']])
-
-# --- Explanations Expander ---
-with st.expander("What do these metrics mean?"):
-    st.markdown("""
-    - **Simple Payback Period:** The number of years it takes for the project's profits to equal the initial investment. A shorter payback period is generally better.
-    - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
-    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
-    """)
+        st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['Payback Period (Years)']])
