@@ -58,7 +58,7 @@ st.title("☀️ Solar Calculations")
 # The side columns act as spacers.
 _, logo_col, _ = st.columns([2, 1, 2])
 with logo_col:
-    # st.image("logo.png") # Uncomment to display your logo
+    st.image("logo.png") # Uncomment to display your logo
     pass
 
 
@@ -191,3 +191,4 @@ with st.expander("What do these metrics mean?"):
     - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
     - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     """)
+
