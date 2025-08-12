@@ -197,6 +197,9 @@ if 'results' in st.session_state:
             })
         
         graph_df = pd.DataFrame(graph_data)
+        
+        # Round the data for cleaner tooltips on the graphs
+        graph_df = graph_df.round(2)
 
         # Display the Payback Period graph by default
         st.subheader("Payback Period vs. Price per kWh")
