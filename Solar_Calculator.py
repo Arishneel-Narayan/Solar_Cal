@@ -24,6 +24,8 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
     initial_investment = capex + contingency_amount
     annual_revenue = annual_kwh * price_per_kwh
     annual_profit = annual_revenue - maintenance_cost
+    lifetime_profit = annual_profit * plant_lifetime
+    lifetime_maintenance_cost = maintenance_cost * plant_lifetime
 
     # Initialize results with default/non-profitable values
     results = {
@@ -32,6 +34,8 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
         "annual_revenue": annual_revenue,
         "maintenance_cost": maintenance_cost,
         "annual_profit": annual_profit,
+        "lifetime_profit": lifetime_profit,
+        "lifetime_maintenance_cost": lifetime_maintenance_cost,
         "simple_payback": float('inf'),
         "roi": -1.0,
         "irr": -1.0,
@@ -40,8 +44,7 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
     # If the project is profitable, calculate the main metrics
     if annual_profit > 0:
         results["simple_payback"] = initial_investment / annual_profit
-        total_profit = annual_profit * plant_lifetime
-        net_gain = total_profit - initial_investment
+        net_gain = lifetime_profit - initial_investment
         results["roi"] = net_gain / initial_investment if initial_investment > 0 else 0
         cash_flows = [-initial_investment] + [annual_profit] * plant_lifetime
         results["irr"] = npf.irr(cash_flows)
@@ -122,11 +125,14 @@ if 'results' in st.session_state:
         )
         
         st.markdown("---")
-        st.header("💰 Annual Financials Breakdown")
-        ann_col1, ann_col2, ann_col3 = st.columns(3)
+        st.header("💰 Financials Breakdown")
+        ann_col1, ann_col2, ann_col3, ann_col4, ann_col5 = st.columns(5)
         ann_col1.metric("Annual Revenue", f"{results['annual_revenue']:,.2f} FJD")
         ann_col2.metric("Annual Maintenance", f"{results['maintenance_cost']:,.2f} FJD")
         ann_col3.metric("Annual Profit", f"{results['annual_profit']:,.2f} FJD")
+        ann_col4.metric("Lifetime Profit", f"{results['lifetime_profit']:,.2f} FJD")
+        ann_col5.metric("Lifetime Maintenance", f"{results['lifetime_maintenance_cost']:,.2f} FJD")
+
 
     else:
         st.error("The project is not profitable with the given inputs (Annual Revenue is less than or equal to Maintenance Costs).")
@@ -202,5 +208,5 @@ with st.expander("What do these metrics mean?"):
     st.markdown("""
     - **Simple Payback Period:** The number of years it takes for the project's profits to equal the initial investment. A shorter payback period is generally better.
     - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
-    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than the company's required rate of return.
+    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     """)
