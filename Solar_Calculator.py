@@ -126,12 +126,17 @@ if 'results' in st.session_state:
         
         st.markdown("---")
         st.header("💰 Financials Breakdown")
-        ann_col1, ann_col2, ann_col3, ann_col4, ann_col5 = st.columns(5)
-        ann_col1.metric("Annual Revenue", f"{results['annual_revenue']:,.2f} FJD")
-        ann_col2.metric("Annual Maintenance", f"{results['maintenance_cost']:,.2f} FJD")
-        ann_col3.metric("Annual Profit", f"{results['annual_profit']:,.2f} FJD")
-        ann_col4.metric("Lifetime Profit", f"{results['lifetime_profit']:,.2f} FJD")
-        ann_col5.metric("Lifetime Maintenance", f"{results['lifetime_maintenance_cost']:,.2f} FJD")
+        
+        # Row 1 for Annual figures
+        ann_row1_col1, ann_row1_col2, ann_row1_col3 = st.columns(3)
+        ann_row1_col1.metric("Annual Revenue", f"{results['annual_revenue']:,.2f} FJD")
+        ann_row1_col2.metric("Annual Maintenance", f"{results['maintenance_cost']:,.2f} FJD")
+        ann_row1_col3.metric("Annual Profit", f"{results['annual_profit']:,.2f} FJD")
+
+        # Row 2 for Lifetime figures
+        ann_row2_col1, ann_row2_col2, _ = st.columns(3) # Use a spacer column for alignment
+        ann_row2_col1.metric("Lifetime Profit", f"{results['lifetime_profit']:,.2f} FJD")
+        ann_row2_col2.metric("Lifetime Maintenance", f"{results['lifetime_maintenance_cost']:,.2f} FJD")
 
 
     else:
