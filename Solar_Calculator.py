@@ -51,13 +51,8 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
 # --- Streamlit App Layout ---
 st.set_page_config(layout="wide", page_title="Solar Calculations")
 
-
-# --- Center the logo ---
-# Create three columns; the middle one will contain the logo.
-# The side columns act as spacers.
-_, logo_col, _ = st.columns([2, 1, 2])
-with logo_col:
-    st.image("logo.png") # Displays your logo
+# --- Display the logo as a banner ---
+st.image("logo.png", use_column_width='always') # Displays your logo as a banner
 
 st.title("Solar Calculations")
 
@@ -138,50 +133,64 @@ if 'results' in st.session_state:
     # --- Interactive Scenario Analysis Section ---
     st.markdown("---")
     st.header("📈 Interactive Scenario Analysis")
-    st.write("Adjust the CAPEX below to see how it affects the project's sensitivity to electricity price.")
-
-    # Get primary inputs from session state to use in this interactive section
-    inputs = st.session_state['primary_inputs']
     
-    # Add the interactive slider for CAPEX
+    inputs = st.session_state['primary_inputs']
+    price_scenarios = np.linspace(0.10, 0.40, 31) # Range from 0.10 to 0.40 FJD
+
+    # --- Graph 1: IRR vs. Price, controlled by CAPEX ---
+    st.subheader("IRR vs. Price per kWh (Sensitivity to CAPEX)")
     scenario_capex_mil = st.slider(
-        "Adjust CAPEX for Scenario Analysis (Million FJD)",
+        "Adjust CAPEX for this scenario (Million FJD)",
         min_value=1.0,
         max_value=3.0,
         value=inputs['capex_mil'], # Default to the primary input value
-        step=0.1
+        step=0.1,
+        key="capex_slider" # Unique key for this slider
     )
-
-    # Re-calculate scenario data based on the slider's value
-    scenario_capex = scenario_capex_mil * 1_000_000
-    annual_kwh = inputs['annual_kwh_mil'] * 1_000_000
-    maintenance_cost = inputs['maintenance_cost_k'] * 1_000
     
-    price_scenarios = np.linspace(0.10, 0.40, 31) # Range from 0.10 to 0.40 FJD
-    scenario_data = []
+    scenario_capex = scenario_capex_mil * 1_000_000
+    irr_data = []
     for price in price_scenarios:
         scenario_results = calculate_solar_financials(
             scenario_capex, 
             inputs['contingency_percentage'], 
-            annual_kwh, 
+            inputs['annual_kwh_mil'] * 1_000_000, 
             price, 
-            maintenance_cost, 
+            inputs['maintenance_cost_k'] * 1_000, 
             inputs['plant_lifetime']
         )
-        scenario_data.append({
-            "Price per kWh (FJD)": price, 
-            "IRR": scenario_results['irr'], 
-            "Payback Period (Years)": scenario_results['simple_payback']
-        })
+        irr_data.append({"Price per kWh (FJD)": price, "IRR": scenario_results['irr']})
     
-    scenario_df = pd.DataFrame(scenario_data)
+    irr_df = pd.DataFrame(irr_data)
+    st.line_chart(irr_df.set_index("Price per kWh (FJD)")[['IRR']])
 
-    # Display the updated graphs
-    st.subheader("IRR vs. Price per kWh")
-    st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['IRR']])
 
-    st.subheader("Payback Period vs. Price per kWh")
-    st.line_chart(scenario_df.set_index("Price per kWh (FJD)")[['Payback Period (Years)']])
+    # --- Graph 2: Payback Period vs. Price, controlled by Maintenance Cost ---
+    st.subheader("Payback Period vs. Price per kWh (Sensitivity to Maintenance Cost)")
+    scenario_maintenance_k = st.slider(
+        "Adjust Annual Maintenance for this scenario (k FJD)",
+        min_value=10.0,
+        max_value=100.0,
+        value=inputs['maintenance_cost_k'], # Default to the primary input value
+        step=5.0,
+        key="maint_slider" # Unique key for this slider
+    )
+    
+    scenario_maintenance = scenario_maintenance_k * 1_000
+    payback_data = []
+    for price in price_scenarios:
+        scenario_results = calculate_solar_financials(
+            inputs['capex_mil'] * 1_000_000, 
+            inputs['contingency_percentage'], 
+            inputs['annual_kwh_mil'] * 1_000_000, 
+            price, 
+            scenario_maintenance, 
+            inputs['plant_lifetime']
+        )
+        payback_data.append({"Price per kWh (FJD)": price, "Payback Period (Years)": scenario_results['simple_payback']})
+
+    payback_df = pd.DataFrame(payback_data)
+    st.line_chart(payback_df.set_index("Price per kWh (FJD)")[['Payback Period (Years)']])
 
 
 # --- Explanations Expander ---
@@ -189,5 +198,5 @@ with st.expander("What do these metrics mean?"):
     st.markdown("""
     - **Simple Payback Period:** The number of years it takes for the project's profits to equal the initial investment. A shorter payback period is generally better.
     - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
-    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
+    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than the company's required rate of return.
     """)
