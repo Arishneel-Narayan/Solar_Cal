@@ -110,8 +110,9 @@ if 'results' in st.session_state:
 
     if results['roi'] != -1.0:
         res_col1, res_col2, res_col3 = st.columns(3)
-        res_col1.metric("Simple Payback Period", f"{results['simple_payback']:.2f} Years")
-        res_col2.metric("Return on Investment (ROI)", f"{results['roi']:.2%}")
+        # Reordered to show ROI first
+        res_col1.metric("Return on Investment (ROI)", f"{results['roi']:.2%}")
+        res_col2.metric("Simple Payback Period", f"{results['simple_payback']:.2f} Years")
         res_col3.metric("Internal Rate of Return (IRR)", f"{results['irr']:.2%}")
 
         st.success(
@@ -157,6 +158,8 @@ if 'results' in st.session_state:
             min_value=0, max_value=25, value=inputs['contingency_percentage'], key="scenario_contingency"
         )
         
+        show_irr = st.checkbox("Show IRR Sensitivity Graph")
+        
     with graph_col:
         # Convert scenario inputs to base units
         scenario_capex = scenario_capex_mil * 1_000_000
@@ -184,12 +187,14 @@ if 'results' in st.session_state:
         
         graph_df = pd.DataFrame(graph_data)
 
-        # Display the updated graphs
-        st.subheader("IRR vs. Price per kWh")
-        st.line_chart(graph_df.set_index("Price per kWh (FJD)")[['IRR']])
-
+        # Display the Payback Period graph by default
         st.subheader("Payback Period vs. Price per kWh")
         st.line_chart(graph_df.set_index("Price per kWh (FJD)")[['Payback Period (Years)']])
+
+        # Display the IRR graph only if the checkbox is ticked
+        if show_irr:
+            st.subheader("IRR vs. Price per kWh")
+            st.line_chart(graph_df.set_index("Price per kWh (FJD)")[['IRR']])
 
 
 # --- Explanations Expander ---
@@ -197,5 +202,5 @@ with st.expander("What do these metrics mean?"):
     st.markdown("""
     - **Simple Payback Period:** The number of years it takes for the project's profits to equal the initial investment. A shorter payback period is generally better.
     - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
-    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
+    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than the company's required rate of return.
     """)
