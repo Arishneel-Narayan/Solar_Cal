@@ -62,7 +62,7 @@ st.title("Solar Calculations")
 
 st.info(
     "**Note:** These calculations are benchmarked for a **1 Hectare, 1 MW** scale project. "
-    "Adjust inputs to reflect project's specifics."
+    "Adjust inputs to reflect project's specifics.
 )
 
 st.markdown("---")
@@ -219,7 +219,7 @@ with st.expander("What do these metrics mean?"):
     - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     """)
 
-# --- NEW: Quick Estimation Tools Section ---
+# --- Quick Estimation Tools Section ---
 st.markdown("---")
 st.header("🛠️ Quick Estimation Tools")
 
@@ -253,8 +253,15 @@ st.info("Calculates the approximate land area needed based on the project's gene
 ACRES_PER_MW = 8.0  # Based on 7-10 usable acres per MW rule of thumb
 SQ_METERS_PER_ACRE = 4046.86
 
-# User input
-land_project_size_mw = st.slider("Select Project Size (MW)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
+# User input with requested changes
+land_project_size_mw = st.slider(
+    "Select Project Size (MW)", 
+    min_value=0.01, 
+    max_value=10.0, 
+    value=5.0, 
+    step=0.01,
+    format="%.2f"
+)
 
 # Real-time calculation
 required_acres = land_project_size_mw * ACRES_PER_MW
