@@ -62,7 +62,7 @@ st.title("Solar Calculations")
 
 st.info(
     "**Note:** These calculations are benchmarked for a **1 Hectare, 1 MW** scale project. "
-    "Adjust inputs to reflect your project's specifics."
+    "Adjust inputs to reflect project's specifics."
 )
 
 st.markdown("---")
@@ -218,3 +218,49 @@ with st.expander("What do these metrics mean?"):
     - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
     - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     """)
+
+# --- NEW: Quick Estimation Tools Section ---
+st.markdown("---")
+st.header("🛠️ Quick Estimation Tools")
+
+# --- CAPEX Scaling Calculator ---
+st.subheader("CAPEX Scaling Calculator (Cost-to-Capacity)")
+st.info("Estimate the CAPEX for a new project size based on an existing project, accounting for economies of scale.")
+
+scale_col1, scale_col2 = st.columns(2)
+with scale_col1:
+    current_capex = st.number_input("Current CAPEX (Million FJD)", min_value=0.1, value=1.0, step=0.1)
+    current_scale = st.number_input("Current Scale (MW)", min_value=0.1, value=1.0, step=0.1)
+    
+with scale_col2:
+    new_scale = st.number_input("New Desired Scale (MW)", min_value=0.1, value=2.0, step=0.1)
+    scaling_factor = st.slider("Scaling Factor (n)", min_value=0.4, max_value=1.0, value=0.7, step=0.05,
+                               help="Represents economy of scale. Lower = greater savings. Typical for solar: 0.6-0.8")
+
+if st.button("Calculate Scaled CAPEX", key="scale_capex_btn"):
+    if current_scale > 0:
+        # Apply the Cost-to-Capacity formula
+        new_capex = current_capex * (new_scale / current_scale) ** scaling_factor
+        st.success(f"Estimated CAPEX for a **{new_scale:.1f} MW** project: **{new_capex:,.2f} Million FJD**")
+    else:
+        st.error("Current Scale must be greater than zero.")
+
+# --- Land Requirement Calculator ---
+st.subheader("Land Requirement Calculator")
+st.info("Calculates the approximate land area needed based on the project's generation capacity.")
+
+# Constants
+ACRES_PER_MW = 8.0  # Based on 7-10 usable acres per MW rule of thumb
+SQ_METERS_PER_ACRE = 4046.86
+
+# User input
+land_project_size_mw = st.slider("Select Project Size (MW)", min_value=1.0, max_value=100.0, value=10.0, step=1.0)
+
+# Real-time calculation
+required_acres = land_project_size_mw * ACRES_PER_MW
+required_sq_meters = required_acres * SQ_METERS_PER_ACRE
+
+# Display results
+land_res_col1, land_res_col2 = st.columns(2)
+land_res_col1.metric("Required Land (Acres)", f"{required_acres:,.2f}")
+land_res_col2.metric("Required Land (Square Meters)", f"{required_sq_meters:,.0f}")
