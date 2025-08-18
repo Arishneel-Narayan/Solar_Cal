@@ -62,7 +62,7 @@ st.title("Solar Calculations")
 
 st.info(
     "**Note:** These calculations are benchmarked for a **1 Hectare, 1 MW** scale project. "
-    "Adjust inputs to reflect project's specifics.
+    "Adjust inputs to reflect project's specifics."
 )
 
 st.markdown("---")
@@ -271,3 +271,4 @@ required_sq_meters = required_acres * SQ_METERS_PER_ACRE
 land_res_col1, land_res_col2 = st.columns(2)
 land_res_col1.metric("Required Land (Acres)", f"{required_acres:,.2f}")
 land_res_col2.metric("Required Land (Square Meters)", f"{required_sq_meters:,.0f}")
+
