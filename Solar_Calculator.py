@@ -57,8 +57,33 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
 # --- Streamlit App Layout ---
 st.set_page_config(layout="wide", page_title="Solar Farm Business Calculator")
 
+# --- Custom CSS for Notion-style banner ---
+st.markdown(
+    """
+    <style>
+    /* This CSS targets the first image element on the page to style it as a banner */
+    div[data-testid="stImage"]:first-of-type {
+        border-radius: 10px;
+        height: 20vh; /* Banner height is 20% of the viewport height */
+        overflow: hidden; /* Ensures the image respects the border-radius */
+        margin-bottom: 2rem; /* Adds some space below the banner */
+    }
+    
+    div[data-testid="stImage"]:first-of-type img {
+        object-fit: cover; /* Ensures the image covers the area without distortion */
+        object-position: center; /* Centers the image within the frame */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # --- Display the logo as a banner ---
-# st.image("logo.png", use_container_width=True) # Uncomment this line if you have a logo.png file
+# Replace the URL with your logo's path or link. Using a placeholder for demonstration.
+st.image(
+    "https://placehold.co/1600x400/333652/E9E8E8?text=Solar+Farm+Business+Calculator", 
+    use_container_width=True
+)
 
 st.title("☀️ Solar Farm Business Calculator")
 st.markdown("An advanced tool for financial modeling and scenario analysis of solar farm projects.")
@@ -305,3 +330,4 @@ with st.expander("What do these metrics mean?"):
     - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     - **Economies of Scale (Scaling Factor 'n'):** This principle states that larger projects are often cheaper per unit. A scaling factor of 1.0 means cost scales linearly (no savings). A factor of 0.7 means a 10x increase in size only costs 10^0.7 = ~5x as much.
     """)
+
