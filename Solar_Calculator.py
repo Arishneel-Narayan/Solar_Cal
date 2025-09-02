@@ -55,7 +55,7 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
     return results
 
 # --- Streamlit App Layout ---
-st.set_page_config(layout="wide", page_title="Solar Farm Business Calculator")
+st.set_page_config(layout="wide", page_title="Soxlar Farm Business Calculator")
 
 # --- Custom CSS for Notion-style banner ---
 st.markdown(
