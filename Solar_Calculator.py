@@ -81,7 +81,7 @@ st.markdown(
 # --- Display the logo as a banner ---
 # Replace the URL with your logo's path or link. Using a placeholder for demonstration.
 st.image(
-    "https://placehold.co/1600x400/333652/E9E8E8?text=Solar+Farm+Business+Calculator", 
+    "logo.png", 
     use_container_width=True
 )
 
@@ -330,4 +330,5 @@ with st.expander("What do these metrics mean?"):
     - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     - **Economies of Scale (Scaling Factor 'n'):** This principle states that larger projects are often cheaper per unit. A scaling factor of 1.0 means cost scales linearly (no savings). A factor of 0.7 means a 10x increase in size only costs 10^0.7 = ~5x as much.
     """)
+
 
