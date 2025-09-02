@@ -55,7 +55,7 @@ def calculate_solar_financials(capex, contingency_pct, annual_kwh, price_per_kwh
     return results
 
 # --- Streamlit App Layout ---
-st.set_page_config(layout="wide", page_title="Soxlar Farm Business Calculator")
+st.set_page_config(layout="wide", page_title="Solar Farm Business Calculator")
 
 # --- Custom CSS for Notion-style banner ---
 st.markdown(
@@ -86,13 +86,13 @@ st.image(
 )
 
 st.title("☀️ Solar Farm Business Calculator")
-st.markdown("An advanced tool for financial modeling and scenario analysis of solar farm projects.")
-st.markdown("---")
+#st.markdown("An advanced tool for financial modeling and scenario analysis of solar farm projects.")
+#st.markdown("---")
 
 
 # --- NEW: Business Discussion Tools Section ---
-st.header("🚀 Business Discussion Tools")
-st.info("Use these tools for high-level planning and to quickly answer key questions from stakeholders.")
+#st.header("🚀 Business Discussion Tools")
+#st.info("Use these tools for high-level planning and to quickly answer key questions from stakeholders.")
 
 # Define base assumptions for quick calculations
 BASE_MW = 1.0
