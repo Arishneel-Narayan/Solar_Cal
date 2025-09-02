@@ -171,6 +171,11 @@ with tab1:
         out_col5.metric("ROI", f"{bus_results['roi']:.2%}")
         out_col6.metric("Payback Period", f"{bus_results['simple_payback']:.2f} Years" if bus_results['roi']!=-1 else "N/A")
 
+        out_col7, out_col8, _ = st.columns(3)
+        out_col7.metric("Annual Maintenance", f"{bus_results['maintenance_cost']/1000:.2f}k FJD")
+        out_col8.metric("Lifetime Maintenance", f"{bus_results['lifetime_maintenance_cost']/1_000_000:.2f}M FJD")
+
+
 # --- Tab 2: Calculate from Desired Plant Size ---
 with tab2:
     st.subheader("How much will it cost and what is the return?")
@@ -219,6 +224,11 @@ with tab2:
         out_col10.metric("Annual Revenue", f"{bus_results_2['annual_revenue']/1_000_000:.2f}M FJD")
         out_col11.metric("ROI", f"{bus_results_2['roi']:.2%}")
         out_col12.metric("Payback Period", f"{bus_results_2['simple_payback']:.2f} Years" if bus_results_2['roi']!=-1 else "N/A")
+
+        out_col13, out_col14, _ = st.columns(3)
+        out_col13.metric("Annual Maintenance", f"{bus_results_2['maintenance_cost']/1000:.2f}k FJD")
+        out_col14.metric("Lifetime Maintenance", f"{bus_results_2['lifetime_maintenance_cost']/1_000_000:.2f}M FJD")
+
 
 
 # --- Detailed Financial Model Section ---
@@ -330,5 +340,3 @@ with st.expander("What do these metrics mean?"):
     - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
     - **Economies of Scale (Scaling Factor 'n'):** This principle states that larger projects are often cheaper per unit. A scaling factor of 1.0 means cost scales linearly (no savings). A factor of 0.7 means a 10x increase in size only costs 10^0.7 = ~5x as much.
     """)
-
-
