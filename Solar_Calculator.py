@@ -333,10 +333,9 @@ if 'results' in st.session_state:
             st.line_chart(graph_df.set_index("Price per kWh (FJD)")[['IRR']], use_container_width=True)
 
 # --- Explanations Expander ---
-with st.expander("What do these metrics mean?"):
-    st.markdown("""
-    - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
-    - **Simple Payback Period:** The number of years it takes for the project's profits to equal the initial investment. A shorter payback period is generally better.
-    - **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
-    - **Economies of Scale (Scaling Factor 'n'):** This principle states that larger projects are often cheaper per unit. A scaling factor of 1.0 means cost scales linearly (no savings). A factor of 0.7 means a 10x increase in size only costs 10^0.7 = ~5x as much.
-    """)
+##    st.markdown("""
+  #  - **Return on Investment (ROI):** Measures the total net profit of the project as a percentage of the initial investment. A higher ROI is better.
+  #  - **Simple Payback Period:** The number of years it takes for the project's profits to equal the initial investment. A shorter payback period is generally better.
+    #- **Internal Rate of Return (IRR):** A more advanced metric representing the project's intrinsic annual rate of return. A project is considered viable if its IRR is higher than your company's required rate of return.
+   # - **Economies of Scale (Scaling Factor 'n'):** This principle states that larger projects are often cheaper per unit. A scaling factor of 1.0 means cost scales linearly (no savings). A factor of 0.7 means a 10x increase in size only costs 10^0.7 = ~5x as much.
+  #  """)
